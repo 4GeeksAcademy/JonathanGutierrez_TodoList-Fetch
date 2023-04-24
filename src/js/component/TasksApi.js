@@ -3,7 +3,7 @@ import { AiOutlineCloseCircle } from 'react-icons/ai';
 
 const TasksApi = () => {
 
-  const [tasksLeft, setTasksLeft] = useState(3);
+  const [tasksLeft, setTasksLeft] = useState(0); // Aquí se inicializa tasksLeft en 0
   const [apiTasks, setApiTasks] = useState([]);
   const [input, setInput] = useState('');
 
@@ -13,6 +13,11 @@ const TasksApi = () => {
 
 
   }, [])
+
+  useEffect(() => {
+    setTasksLeft(apiTasks.filter(task => !task.done).length); // Aquí se actualiza tasksLeft con el número de tareas pendientes
+  }, [apiTasks])
+
 
   const getAllelements = () => {
     var requestOptions = {
@@ -48,7 +53,11 @@ const TasksApi = () => {
 
     fetch("https://assets.breatheco.de/apis/fake/todos/user/jgutierrez", requestOptions)
       .then(response => response.json())
-      .then(result => getAllelements())
+      .then(result => {
+        getAllelements();
+        handleTasksLeftSum();
+        setInput('');
+      })
       .catch(error => console.log('error', error));
 
   }
@@ -72,7 +81,10 @@ const TasksApi = () => {
 
     fetch("https://assets.breatheco.de/apis/fake/todos/user/jgutierrez", requestOptions)
       .then(response => response.json())
-      .then(result => getAllelements())
+      .then(result => {
+        getAllelements();
+        setTasksLeft(handleTasksLeftRest);
+      })
       .catch(error => console.log('error', error));
 
   }
@@ -83,8 +95,12 @@ const TasksApi = () => {
     console.log("escribiendo");
   }
 
-  const handleTasksLeft = () => {
+  const handleTasksLeftSum = () => {
     setTasksLeft(tasksLeft + 1);
+  };
+
+  const handleTasksLeftRest = () => {
+    setTasksLeft(tasksLeft - 1);
   };
 
 
@@ -94,7 +110,7 @@ const TasksApi = () => {
       <h1>TODOS</h1>
 
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Añadir tarea" value={input} onChange={(e) => setInput(e.target.value)}></input>
+        <input type="text" className="input-container" placeholder="Añadir tarea" value={input} onChange={(e) => setInput(e.target.value)}></input>
 
         <button onClick={handleAddTask}>Enviar</button>
       </form>
@@ -116,6 +132,9 @@ const TasksApi = () => {
       ) : (
         <></>
       )}
+
+
+
     </div>
   );
 };
